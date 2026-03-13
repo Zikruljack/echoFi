@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Peta ATM — SENTINEL-FI</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    .map-page { flex: 1; position: relative; }
+    #map { width: 100%; height: 100%; }
+    .leaflet-container { background: #0f1117; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <svg class="nav-logo-icon" viewBox="0 0 32 32" fill="none">
+        <path d="M16 2L4 7V15C4 21.6 9.3 27.7 16 30C22.7 27.7 28 21.6 28 15V7L16 2Z" fill="rgba(0,212,170,0.15)" stroke="#00d4aa" stroke-width="1.5"/>
+        <path d="M11 16L14.5 19.5L21 13" stroke="#00d4aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="16" cy="12" r="2" fill="#00d4aa" opacity="0.6"/>
+      </svg>
+      SENTINEL<span>-FI</span>
+    </a>
+    <div class="nav-menu" id="nav-menu">
+      <a href="scan.html"         class="nav-link">Scan</a>
+      <a href="map.html"          class="nav-link">Peta</a>
+      <a href="history.html"      class="nav-link">Riwayat</a>
+      <a href="how-it-works.html" class="nav-link">Cara Kerja</a>
+    </div>
+    <button class="nav-toggle" id="nav-toggle"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- MAP AREA -->
+<div class="map-page">
+  <!-- Floating Control Panel -->
+  <div class="map-panel" id="map-panel">
+    <div class="map-panel-title">🗺️ Filter Peta ATM</div>
+
+    <div class="map-filter-group">
+      <div class="map-filter-label">Kota</div>
+      <select class="map-select" id="filter-city"></select>
+    </div>
+
+    <div class="map-filter-group">
+      <div class="map-filter-label">Bank</div>
+      <select class="map-select" id="filter-bank"></select>
+    </div>
+
+    <div class="map-filter-group">
+      <div class="map-filter-label">Status</div>
+      <div class="map-status-btns">
+        <button class="map-status-btn active" data-status="all">Semua</button>
+        <button class="map-status-btn" data-status="aman">Aman</button>
+        <button class="map-status-btn" data-status="ancaman">Ancaman</button>
+        <button class="map-status-btn" data-status="belum_scan">Belum Scan</button>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:5px">
+      <div style="font-size:11px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:3px">Legenda</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px">
+        <span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block;box-shadow:0 0 6px #22c55e"></span>
+        <span style="color:var(--text-muted)">Aman (sudah di-scan)</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px">
+        <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:inline-block;box-shadow:0 0 6px #ef4444"></span>
+        <span style="color:var(--text-muted)">Ancaman terdeteksi</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px">
+        <span style="width:10px;height:10px;border-radius:50%;background:#64748b;display:inline-block"></span>
+        <span style="color:var(--text-muted)">Belum di-scan</span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="map-stats">
+      <div class="map-stat">
+        <div class="map-stat-val neutral" id="stat-total">0</div>
+        <div class="map-stat-lbl">Total ATM</div>
+      </div>
+      <div class="map-stat">
+        <div class="map-stat-val safe" id="stat-scanned">0</div>
+        <div class="map-stat-lbl">Di-scan</div>
+      </div>
+      <div class="map-stat">
+        <div class="map-stat-val danger" id="stat-threats">0</div>
+        <div class="map-stat-lbl">Ancaman</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map -->
+  <div id="map"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script src="js/map.js"></script>
+</body>
+</html>

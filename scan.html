@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scan ATM — SENTINEL-FI</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <svg class="nav-logo-icon" viewBox="0 0 32 32" fill="none">
+        <path d="M16 2L4 7V15C4 21.6 9.3 27.7 16 30C22.7 27.7 28 21.6 28 15V7L16 2Z" fill="rgba(0,212,170,0.15)" stroke="#00d4aa" stroke-width="1.5"/>
+        <path d="M11 16L14.5 19.5L21 13" stroke="#00d4aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="16" cy="12" r="2" fill="#00d4aa" opacity="0.6"/>
+      </svg>
+      SENTINEL<span>-FI</span>
+    </a>
+    <div class="nav-menu" id="nav-menu">
+      <a href="scan.html"         class="nav-link">Scan</a>
+      <a href="map.html"          class="nav-link">Peta</a>
+      <a href="history.html"      class="nav-link">Riwayat</a>
+      <a href="how-it-works.html" class="nav-link">Cara Kerja</a>
+    </div>
+    <button class="nav-toggle" id="nav-toggle"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="container scan-wrapper">
+
+  <!-- ══ SECTION 1: SELECT ATM ══ -->
+  <section id="section-select" class="scan-section">
+    <div class="page-header">
+      <h1 class="page-title">🔍 Scan ATM</h1>
+      <p class="page-subtitle">Pilih ATM yang ingin di-scan untuk mendeteksi perangkat fraud</p>
+    </div>
+
+    <div class="select-grid">
+      <!-- Search -->
+      <div class="filter-group">
+        <label class="filter-label">Cari ATM</label>
+        <input type="text" id="atm-search" class="search-input" placeholder="Cari kode, nama bank, atau lokasi..."/>
+      </div>
+
+      <!-- City Filter -->
+      <div class="filter-group">
+        <label class="filter-label">Filter Kota</label>
+        <div class="filter-scroll" id="city-filters"></div>
+      </div>
+
+      <!-- Bank Filter -->
+      <div class="filter-group">
+        <label class="filter-label">Filter Bank</label>
+        <div class="filter-scroll" id="bank-filters"></div>
+      </div>
+
+      <!-- Select -->
+      <div class="filter-group">
+        <label class="filter-label">Pilih ATM</label>
+        <select id="atm-select" class="select-input" size="1">
+          <option value="">-- Pilih ATM --</option>
+        </select>
+      </div>
+
+      <!-- ATM Info Card -->
+      <div id="atm-info-card" class="atm-info-card hidden"></div>
+
+      <!-- Scan Button -->
+      <div>
+        <button id="btn-scan" class="btn btn-primary" style="width:100%;font-size:16px;padding:16px" disabled>
+          🔍 &nbsp;SCAN SEKARANG
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SECTION 2: SCANNING ══ -->
+  <section id="section-scanning" class="scan-section hidden">
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <h1 class="page-title">📡 Scanning...</h1>
+        <p class="page-subtitle">Memindai mesin ATM menggunakan Wi-Fi CSI</p>
+      </div>
+      <span class="badge badge-scanning">SCANNING...</span>
+    </div>
+
+    <div class="scanning-layout">
+      <!-- Left: ATM SVG -->
+      <div class="atm-svg-wrap">
+        <div id="atm-svg-container" class="atm-svg-container"></div>
+        <div id="scan-status-text" class="scan-status">Memulai pemindaian...</div>
+        <div class="step-dots">
+          <div class="step-dot" title="Slot Kartu"></div>
+          <div class="step-dot" title="Keypad"></div>
+          <div class="step-dot" title="Panel Depan"></div>
+          <div class="step-dot" title="Area Kamera"></div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:16px;font-size:11px;color:var(--text-dim)">
+          <span>● Slot Kartu</span>
+          <span>● Keypad</span>
+          <span>● Panel</span>
+          <span>● Kamera</span>
+        </div>
+      </div>
+
+      <!-- Right: Metrics + Waveform -->
+      <div class="scan-right">
+        <div>
+          <div class="filter-label" style="margin-bottom:8px">Sinyal CSI Real-time</div>
+          <div class="waveform-container">
+            <canvas id="waveform-canvas"></canvas>
+          </div>
+        </div>
+
+        <div>
+          <div class="filter-label" style="margin-bottom:8px">Parameter Teknis</div>
+          <div class="tech-metrics">
+            <div class="metric-card">
+              <div class="metric-label">Signal Strength</div>
+              <div class="metric-value" id="metric-signal">— dBm</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Phase Variance</div>
+              <div class="metric-value" id="metric-phase">—</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Anomaly Score</div>
+              <div class="metric-value" id="metric-anomaly">0.00</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Subcarriers</div>
+              <div class="metric-value" id="metric-sub">—/56</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-sm" style="font-size:12px;color:var(--text-dim);line-height:1.7">
+          <div style="font-weight:600;color:var(--text-muted);margin-bottom:6px">Proses Analisis:</div>
+          <div>1. Memancarkan sinyal Wi-Fi 2.4GHz</div>
+          <div>2. Mengukur Channel State Information (CSI)</div>
+          <div>3. Membandingkan pola pantulan dengan baseline</div>
+          <div>4. CNN-LSTM mendeteksi anomali material asing</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SECTION 3: RESULT ══ -->
+  <section id="section-result" class="scan-section hidden">
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div>
+        <h1 class="page-title">Hasil Scan</h1>
+        <p class="page-subtitle">Analisis selesai — berikut hasil pemindaian</p>
+      </div>
+      <button id="btn-reset" class="btn btn-outline">← Scan ATM Lain</button>
+    </div>
+
+    <div id="result-card" class="result-card">
+      <!-- Filled by scan.js -->
+    </div>
+  </section>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div>
+      <div class="footer-logo">SENTINEL<span>-FI</span></div>
+      <div class="footer-tagline">Lindungi Transaksi ATM Anda</div>
+    </div>
+    <div class="footer-links">
+      <a href="index.html"        class="footer-link">Beranda</a>
+      <a href="map.html"          class="footer-link">Peta</a>
+      <a href="history.html"      class="footer-link">Riwayat</a>
+      <a href="how-it-works.html" class="footer-link">Cara Kerja</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script src="js/waveform.js"></script>
+<script src="js/scan.js"></script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cara Kerja — SENTINEL-FI</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <svg class="nav-logo-icon" viewBox="0 0 32 32" fill="none">
+        <path d="M16 2L4 7V15C4 21.6 9.3 27.7 16 30C22.7 27.7 28 21.6 28 15V7L16 2Z" fill="rgba(0,212,170,0.15)" stroke="#00d4aa" stroke-width="1.5"/>
+        <path d="M11 16L14.5 19.5L21 13" stroke="#00d4aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="16" cy="12" r="2" fill="#00d4aa" opacity="0.6"/>
+      </svg>
+      SENTINEL<span>-FI</span>
+    </a>
+    <div class="nav-menu" id="nav-menu">
+      <a href="scan.html"         class="nav-link">Scan</a>
+      <a href="map.html"          class="nav-link">Peta</a>
+      <a href="history.html"      class="nav-link">Riwayat</a>
+      <a href="how-it-works.html" class="nav-link">Cara Kerja</a>
+    </div>
+    <button class="nav-toggle" id="nav-toggle"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hiw-hero">
+  <div class="hero-eyebrow" style="display:inline-flex;margin-bottom:1rem">Dokumentasi Teknis</div>
+  <h1 class="hiw-hero-title">Bagaimana SENTINEL-FI Bekerja?</h1>
+  <p class="hiw-hero-sub">Penjelasan lengkap teknologi Wi-Fi CSI untuk deteksi fraud ATM — dari konsep hingga implementasi.</p>
+</div>
+
+<div class="container" style="padding-bottom:4rem">
+
+  <!-- 1. MASALAH -->
+  <div class="hiw-section">
+    <div class="hiw-section-label">01 — Masalah</div>
+    <h2 class="hiw-section-title">Skimming ATM Makin Canggih</h2>
+    <p class="hiw-section-body">
+      Kejahatan skimming ATM berkembang pesat. Perangkat fraud modern semakin tipis, transparan, dan sulit terdeteksi mata manusia. CCTV hanya merekam — tidak mencegah. Metode konvensional tidak efektif menghadapi ancaman generasi baru.
+    </p>
+    <div class="problem-stats">
+      <div class="problem-stat-card">
+        <div class="problem-stat-val">Rp 1,2T</div>
+        <div class="problem-stat-lbl">Kerugian tahunan dari skimming ATM di Indonesia</div>
+      </div>
+      <div class="problem-stat-card">
+        <div class="problem-stat-val">3-5 mm</div>
+        <div class="problem-stat-lbl">Ketebalan deep insert skimmer modern — tidak terlihat mata</div>
+      </div>
+      <div class="problem-stat-card">
+        <div class="problem-stat-val">72 jam</div>
+        <div class="problem-stat-lbl">Rata-rata waktu deteksi skimmer sebelum ditemukan bank</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. SOLUSI -->
+  <div class="hiw-section">
+    <div class="hiw-section-label">02 — Solusi</div>
+    <h2 class="hiw-section-title">Device ESP32 Portable</h2>
+    <p class="hiw-section-body">
+      SENTINEL-FI adalah device kecil berbasis ESP32 yang bisa dibawa di dompet. Sebelum melakukan transaksi, tempelkan device ke mesin ATM — device akan memindai dalam 7 detik menggunakan gelombang Wi-Fi dan memberikan hasil AMAN atau ANCAMAN.
+    </p>
+    <div class="spec-chips" style="margin-top:1.5rem">
+      <span class="spec-chip accent">ESP32-S3</span>
+      <span class="spec-chip accent">Wi-Fi 2.4GHz CSI</span>
+      <span class="spec-chip accent">Edge AI (CNN-LSTM)</span>
+      <span class="spec-chip">USB-C Charging</span>
+      <span class="spec-chip">Baterai 400mAh</span>
+      <span class="spec-chip">40 × 25 × 8 mm</span>
+      <span class="spec-chip">7 detik scan</span>
+      <span class="spec-chip">Bluetooth LE App</span>
+    </div>
+    <div style="margin-top:1.5rem;padding:1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;gap:12px">
+      <span style="font-size:2rem">🔒</span>
+      <div>
+        <strong style="display:block;margin-bottom:4px">Privacy by Design</strong>
+        <span style="font-size:13px;color:var(--text-muted)">SENTINEL-FI tidak menggunakan kamera, tidak merekam data transaksi, tidak memerlukan koneksi internet untuk analisis. Semua proses AI berjalan ondevice (edge computing).</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. CSI -->
+  <div class="hiw-section">
+    <div class="hiw-section-label">03 — Teknologi</div>
+    <h2 class="hiw-section-title">Cara Kerja Wi-Fi CSI</h2>
+    <p class="hiw-section-body">
+      Channel State Information (CSI) adalah data detail tentang bagaimana sinyal Wi-Fi merambat antara pengirim dan penerima — termasuk amplitudo, fase, dan delay pada setiap subcarrier. Benda fisik mengubah pola CSI secara unik dan terukur.
+    </p>
+    <div class="csi-diagram">
+      <div class="csi-step">
+        <div class="csi-step-icon">📡</div>
+        <div class="csi-step-title">Emit</div>
+        <div class="csi-step-desc">ESP32 memancarkan sinyal Wi-Fi 2.4GHz pada 56 subcarrier secara bersamaan</div>
+      </div>
+      <div class="csi-arrow">→</div>
+      <div class="csi-step">
+        <div class="csi-step-icon">🔄</div>
+        <div class="csi-step-title">Reflect</div>
+        <div class="csi-step-desc">Sinyal memantul dari permukaan ATM. Benda asing mengubah pola pantulan secara terukur</div>
+      </div>
+      <div class="csi-arrow">→</div>
+      <div class="csi-step">
+        <div class="csi-step-icon">🧠</div>
+        <div class="csi-step-title">Analyze</div>
+        <div class="csi-step-desc">CNN-LSTM menganalisis pola CSI dan menghitung anomaly score per komponen</div>
+      </div>
+      <div class="csi-arrow">→</div>
+      <div class="csi-step" style="border-color:rgba(0,212,170,0.3);background:var(--accent-glow)">
+        <div class="csi-step-icon">⚡</div>
+        <div class="csi-step-title">Result</div>
+        <div class="csi-step-desc">Hasil AMAN / ANCAMAN dengan confidence score dan breakdown per komponen</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. THREATS -->
+  <div class="hiw-section">
+    <div class="hiw-section-label">04 — Jenis Ancaman</div>
+    <h2 class="hiw-section-title">5 Jenis Fraud yang Dideteksi</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:1.5rem">
+      <div class="threat-card">
+        <div class="threat-card-icon">💳</div>
+        <div class="threat-card-name">Deep Insert Skimmer</div>
+        <div style="font-size:11px;color:var(--accent);margin:4px 0">Komponen: Slot Kartu</div>
+        <div class="threat-card-desc">Alat skimmer super tipis (3-5mm) yang dimasukkan ke dalam slot kartu. Tidak terlihat dari luar. CSI mendeteksi material logam asing di dalam slot.</div>
+      </div>
+      <div class="threat-card">
+        <div class="threat-card-icon">🔲</div>
+        <div class="threat-card-name">Overlay Skimmer</div>
+        <div style="font-size:11px;color:var(--accent);margin:4px 0">Komponen: Slot Kartu</div>
+        <div class="threat-card-desc">Penutup palsu yang dipasang di atas card reader. Memiliki strip magnetik reader. CSI mendeteksi ketebalan tambahan 4-8mm yang tidak normal.</div>
+      </div>
+      <div class="threat-card">
+        <div class="threat-card-icon">📷</div>
+        <div class="threat-card-name">Hidden Camera</div>
+        <div style="font-size:11px;color:var(--accent);margin:4px 0">Komponen: Area Kamera</div>
+        <div class="threat-card-desc">Kamera pinhole berukuran 2mm yang merekam penekanan PIN. Disembunyikan di balik stiker atau panel palsu. CSI mendeteksi komponen elektronik asing.</div>
+      </div>
+      <div class="threat-card">
+        <div class="threat-card-icon">⌨️</div>
+        <div class="threat-card-name">Fake Keypad Overlay</div>
+        <div style="font-size:11px;color:var(--accent);margin:4px 0">Komponen: Keypad</div>
+        <div class="threat-card-desc">Overlay keypad tipis dengan wireless transmitter menyimpan dan mengirimkan PIN. CSI mendeteksi sinyal RF dan perubahan material pada area keypad.</div>
+      </div>
+      <div class="threat-card">
+        <div class="threat-card-icon">⚠️</div>
+        <div class="threat-card-name">Multiple Threats</div>
+        <div style="font-size:11px;color:var(--warning);margin:4px 0">Beberapa Komponen</div>
+        <div class="threat-card-desc">Kombinasi beberapa perangkat fraud sekaligus. Biasanya ditemukan di lokasi terpencil dengan pengawasan rendah. Level bahaya tertinggi.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. ARSITEKTUR -->
+  <div class="hiw-section">
+    <div class="hiw-section-label">05 — Arsitektur</div>
+    <h2 class="hiw-section-title">Alur Sistem SENTINEL-FI</h2>
+    <div class="arch-diagram">
+      <div class="arch-node highlight">
+        <div class="arch-node-icon">📱</div>
+        <div class="arch-node-label">Device ESP32</div>
+        <div class="arch-node-sub">Hardware portable</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node highlight">
+        <div class="arch-node-icon">📡</div>
+        <div class="arch-node-label">Wi-Fi CSI</div>
+        <div class="arch-node-sub">56 subcarriers</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node highlight">
+        <div class="arch-node-icon">🧠</div>
+        <div class="arch-node-label">Edge AI</div>
+        <div class="arch-node-sub">CNN-LSTM ondevice</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node highlight">
+        <div class="arch-node-icon">📊</div>
+        <div class="arch-node-label">Hasil Scan</div>
+        <div class="arch-node-sub">via Bluetooth LE</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <div class="arch-node-icon">☁️</div>
+        <div class="arch-node-label">Cloud (Opsional)</div>
+        <div class="arch-node-sub">Crowdsource database</div>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--text-muted);margin-top:12px">
+      Analisis AI berjalan sepenuhnya di device (edge computing) — tidak memerlukan koneksi internet. Data crowdsource dikirim ke cloud hanya jika user menyetujui, dalam format anonim.
+    </p>
+  </div>
+
+  <!-- 6. PERBANDINGAN -->
+  <div class="hiw-section">
+    <div class="hiw-section-label">06 — Keunggulan</div>
+    <h2 class="hiw-section-title">SENTINEL-FI vs Solusi Existing</h2>
+    <div style="overflow-x:auto;margin-top:1rem">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Fitur</th>
+            <th class="sentinel-col">SENTINEL-FI</th>
+            <th>CCTV</th>
+            <th>Anti-Skimming Konvensional</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="feature-col">Deteksi sebelum transaksi</td><td class="comp-check sentinel-col">✓ Ya</td><td class="comp-cross">✗ Tidak</td><td class="comp-partial">~ Parsial</td></tr>
+          <tr><td class="feature-col">Deteksi deep insert skimmer</td><td class="comp-check sentinel-col">✓ Ya</td><td class="comp-cross">✗ Tidak</td><td class="comp-cross">✗ Tidak</td></tr>
+          <tr><td class="feature-col">Privasi pengguna</td><td class="comp-check sentinel-col">✓ Tanpa kamera</td><td class="comp-cross">✗ Merekam</td><td class="comp-check">✓ Ya</td></tr>
+          <tr><td class="feature-col">Portabel (dibawa pengguna)</td><td class="comp-check sentinel-col">✓ Ya</td><td class="comp-cross">✗ Terpasang tetap</td><td class="comp-cross">✗ Terpasang tetap</td></tr>
+          <tr><td class="feature-col">Offline / Edge AI</td><td class="comp-check sentinel-col">✓ Ondevice</td><td class="comp-cross">✗ Perlu monitoring</td><td class="comp-check">✓ Ya</td></tr>
+          <tr><td class="feature-col">Deteksi hidden camera</td><td class="comp-check sentinel-col">✓ Ya</td><td class="comp-partial">~ Terbatas</td><td class="comp-cross">✗ Tidak</td></tr>
+          <tr><td class="feature-col">Crowdsourced database</td><td class="comp-check sentinel-col">✓ Ya</td><td class="comp-cross">✗ Tidak</td><td class="comp-cross">✗ Tidak</td></tr>
+          <tr><td class="feature-col">Biaya per pengguna</td><td class="comp-check sentinel-col">Rp 150.000</td><td class="comp-cross">—</td><td class="comp-cross">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 7. ROADMAP -->
+  <div class="hiw-section">
+    <div class="hiw-section-label">07 — Roadmap</div>
+    <h2 class="hiw-section-title">Tahapan Pengembangan</h2>
+    <div class="timeline">
+      <div class="timeline-item done">
+        <div class="timeline-dot"></div>
+        <div class="timeline-phase">Phase 1</div>
+        <div class="timeline-title">Prototype Web</div>
+        <div class="timeline-desc">Demo web, validasi konsep, desain UI/UX</div>
+        <span class="timeline-status status-done">✓ Selesai</span>
+      </div>
+      <div class="timeline-item active">
+        <div class="timeline-dot"></div>
+        <div class="timeline-phase">Phase 2</div>
+        <div class="timeline-title">Hardware MVP</div>
+        <div class="timeline-desc">ESP32 prototype, CSI data collection, model training</div>
+        <span class="timeline-status status-active">● In Progress</span>
+      </div>
+      <div class="timeline-item future">
+        <div class="timeline-dot"></div>
+        <div class="timeline-phase">Phase 3</div>
+        <div class="timeline-title">Pilot Program</div>
+        <div class="timeline-desc">Uji lapangan 100 user, validasi akurasi, kerjasama bank</div>
+        <span class="timeline-status status-future">Q3 2026</span>
+      </div>
+      <div class="timeline-item future">
+        <div class="timeline-dot"></div>
+        <div class="timeline-phase">Phase 4</div>
+        <div class="timeline-title">Produksi Massal</div>
+        <div class="timeline-desc">Distribusi ke bank, minimarket, e-commerce</div>
+        <span class="timeline-status status-future">2027</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. SPESIFIKASI -->
+  <div class="hiw-section">
+    <div class="hiw-section-label">08 — Spesifikasi</div>
+    <h2 class="hiw-section-title">Spesifikasi Teknis</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1rem">
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:12px;color:var(--text-muted);font-size:13px;text-transform:uppercase;letter-spacing:0.6px">Hardware</div>
+        <table class="spec-table">
+          <tr><td>Mikrokontroler</td><td>ESP32-S3 (240MHz dual core)</td></tr>
+          <tr><td>Wi-Fi</td><td>IEEE 802.11 b/g/n 2.4GHz</td></tr>
+          <tr><td>CSI Subcarriers</td><td>56 subcarrier per scan</td></tr>
+          <tr><td>Konektivitas</td><td>Wi-Fi + Bluetooth LE 5.0</td></tr>
+          <tr><td>Baterai</td><td>400mAh LiPo (±200 scan)</td></tr>
+          <tr><td>Dimensi</td><td>40 × 25 × 8 mm</td></tr>
+          <tr><td>Berat</td><td>12 gram</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:12px;color:var(--text-muted);font-size:13px;text-transform:uppercase;letter-spacing:0.6px">AI & Software</div>
+        <table class="spec-table">
+          <tr><td>Model AI</td><td>CNN-LSTM hybrid</td></tr>
+          <tr><td>Akurasi (Lab)</td><td>99.2% detection rate</td></tr>
+          <tr><td>False Positive</td><td>&lt; 0.8%</td></tr>
+          <tr><td>Waktu Scan</td><td>5–8 detik</td></tr>
+          <tr><td>Inferensi</td><td>Edge (ondevice)</td></tr>
+          <tr><td>Model Size</td><td>~180KB (quantized)</td></tr>
+          <tr><td>Privasi</td><td>No-camera, no-PII</td></tr>
+        </table>
+      </div>
+    </div>
+    <div style="margin-top:1.5rem;text-align:center">
+      <a href="scan.html" class="btn btn-primary btn-lg">🔍 Coba Demo Sekarang</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div>
+      <div class="footer-logo">SENTINEL<span>-FI</span></div>
+      <div class="footer-tagline">Lindungi Transaksi ATM Anda</div>
+    </div>
+    <div class="footer-links">
+      <a href="index.html"   class="footer-link">Beranda</a>
+      <a href="scan.html"    class="footer-link">Scan</a>
+      <a href="map.html"     class="footer-link">Peta</a>
+      <a href="history.html" class="footer-link">Riwayat</a>
+    </div>
+    <div class="footer-copy">Prototype Hackathon — 2026</div>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
