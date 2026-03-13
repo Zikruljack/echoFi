@@ -1,4 +1,4 @@
-// SENTINEL-FI — Shared Utilities
+// echoFi — Shared Utilities
 
 const MONTH_NAMES = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
 

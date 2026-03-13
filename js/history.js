@@ -1,4 +1,4 @@
-// SENTINEL-FI — History Controller
+// echoFi — History Controller
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!document.getElementById("history-list")) return;

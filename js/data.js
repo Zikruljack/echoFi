@@ -1,4 +1,4 @@
-// SENTINEL-FI — Dummy Data
+// echoFi — Dummy Data
 // Semua data hardcoded, tidak ada backend
 
 const ATM_DATA = [

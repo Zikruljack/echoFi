@@ -1,4 +1,4 @@
-// SENTINEL-FI — Scan Controller
+// echoFi — Scan Controller
 
 class ScanController {
   constructor() {
@@ -553,7 +553,7 @@ class ScanController {
   }
 
   reportATM() {
-    alert(`Laporan terkirim!\n\nATM ${this.selectedATM?.code} telah dilaporkan ke sistem SENTINEL-FI dan pihak bank terkait.\n\nNomor laporan: RPT-${Date.now().toString().slice(-8)}`);
+    alert(`Laporan terkirim!\n\nATM ${this.selectedATM?.code} telah dilaporkan ke sistem echoFi dan pihak bank terkait.\n\nNomor laporan: RPT-${Date.now().toString().slice(-8)}`);
   }
 
   resetScan() {

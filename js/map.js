@@ -1,4 +1,4 @@
-// SENTINEL-FI — Map Controller
+// echoFi — Map Controller
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!document.getElementById("map")) return;

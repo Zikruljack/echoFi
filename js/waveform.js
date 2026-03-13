@@ -1,4 +1,4 @@
-// SENTINEL-FI — Waveform Canvas Animation
+// echoFi — Waveform Canvas Animation
 
 class WaveformCanvas {
   constructor(canvasId) {
