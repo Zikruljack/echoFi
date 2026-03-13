@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EchoFi | AVG Style Security Pro</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        avg: {
+                            bg: '#1a1f2b',       // Latar belakang utama
+                            panel: '#242b3b',    // Latar kartu
+                            panelHover: '#2a3245',
+                            green: '#1dd1a1',    // Hijau neon AVG
+                            greenDim: 'rgba(29, 209, 161, 0.15)',
+                            red: '#ff6b6b',      // Merah AVG
+                            redDim: 'rgba(255, 107, 107, 0.15)',
+                            text: '#f1f2f6',     // Teks utama
+                            muted: '#8395a7',    // Teks redup
+                            yellow: '#feca57'
+                        }
+                    },
+                    fontFamily: { 
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'] 
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Three.js & OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+        
+        body { margin: 0; background-color: #1a1f2b; color: #f1f2f6; user-select: none; overflow-x: hidden; font-family: 'Inter', sans-serif; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1f2b; }
+        ::-webkit-scrollbar-thumb { background: #8395a7; border-radius: 3px; }
+
+        .avg-card {
+            background-color: #242b3b;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .status-circle-green { box-shadow: 0 0 20px rgba(29, 209, 161, 0.4), inset 0 0 20px rgba(29, 209, 161, 0.2); }
+        .status-circle-red {
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5), inset 0 0 20px rgba(255, 107, 107, 0.3);
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 20px rgba(255, 107, 107, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 107, 107, 0.8); }
+            100% { box-shadow: 0 0 20px rgba(255, 107, 107, 0.5); }
+        }
+
+        /* Toggle Switch CSS */
+        .toggle-checkbox:checked { right: 0; border-color: #1dd1a1; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #1dd1a1; }
+        .toggle-checkbox:checked + .toggle-label:after { transform: translateX(100%); border-color: white; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback } = React;
+
+        // --- COMPONENT: Multilayer CSI Spectrogram (SVG) ---
+        const AdvancedSignalChart = ({ data, isThreat }) => {
+            const width = 400, height = 100;
+            
+            const getPath = (offset, noiseMult) => {
+                if (!data || data.length === 0) return '';
+                const pts = data.map((d, i) => {
+                    const x = (i / (data.length - 1)) * width;
+                    const noise = Math.sin(d.time * noiseMult) * offset;
+                    const val = isThreat ? (d.amp + noise + (Math.random()*10 - 5)) : (d.amp + noise);
+                    return `${x},${100 - Math.min(100, Math.max(0, val))}`;
+                }).join(' L ');
+                return `M 0,${100 - data[0].amp} L ${pts}`;
+            };
+
+            const color = isThreat ? '#ff6b6b' : '#1dd1a1';
+            const gradColor = isThreat ? '#ff6b6b' : '#1dd1a1';
+
+            return (
+                <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="w-full h-full drop-shadow-[0_0_8px_currentColor]" style={{ color }}>
+                    <defs>
+                        <linearGradient id="fadeGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={gradColor} stopOpacity={0.4} />
+                            <stop offset="100%" stopColor={gradColor} stopOpacity={0.0} />
+                        </linearGradient>
+                    </defs>
+                    <g stroke="rgba(255,255,255,0.05)" strokeDasharray="2 4" strokeWidth="1">
+                        <line x1="0" y1="25" x2="400" y2="25" /> <line x1="0" y1="50" x2="400" y2="50" /> <line x1="0" y1="75" x2="400" y2="75" />
+                        <line x1="100" y1="0" x2="100" y2="100" /> <line x1="200" y1="0" x2="200" y2="100" /> <line x1="300" y1="0" x2="300" y2="100" />
+                    </g>
+                    {data.length > 0 && (
+                        <g>
+                            <path d={`M 0,100 L ${getPath(0, 1).substring(2)} L ${width},100 Z`} fill="url(#fadeGrad)" />
+                            <path d={getPath(8, 0.5)} fill="none" stroke={color} strokeWidth="0.8" opacity="0.4" />
+                            <path d={getPath(-6, 0.7)} fill="none" stroke={color} strokeWidth="0.8" opacity="0.6" />
+                            <path d={getPath(0, 1)} fill="none" stroke={color} strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                        </g>
+                    )}
+                </svg>
+            );
+        };
+
+        // --- COMPONENT: 3D Radar Environment ---
+        const RadarScene3D = ({ scenario }) => {
+            const containerRef = useRef(null);
+            const sceneRef = useRef(null);
+            const cameraRef = useRef(null);
+            const rendererRef = useRef(null);
+            const controlsRef = useRef(null);
+            const targetsRef = useRef({}); 
+            const frameIdRef = useRef(null);
+            
+            // Refs untuk HTML Labels
+            const label1Ref = useRef(null);
+            const label2Ref = useRef(null);
+            const label3Ref = useRef(null);
+
+            useEffect(() => {
+                const container = containerRef.current;
+                // Fallback dimensi jika di HP awalnya terbaca 0
+                const width = container.clientWidth || window.innerWidth;
+                const height = container.clientHeight || 400;
+                const THREE = window.THREE;
+
+                const scene = new THREE.Scene();
+                scene.background = new THREE.Color('#1a1f2b');
+                sceneRef.current = scene;
+
+                // Penyesuaian jarak kamera otomatis untuk layar HP (Mobile)
+                const isMobile = window.innerWidth < 768;
+                const camera = new THREE.PerspectiveCamera(isMobile ? 60 : 45, width / height, 1, 1000);
+                camera.position.set(0, isMobile ? 180 : 120, isMobile ? 280 : 180);
+                cameraRef.current = camera;
+
+                const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                renderer.setSize(width, height);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                container.innerHTML = '';
+                container.appendChild(renderer.domElement);
+                rendererRef.current = renderer;
+
+                const controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+                controls.maxPolarAngle = Math.PI / 2 - 0.05;
+                controls.minDistance = 30;
+                controls.maxDistance = 400;
+                controls.target.set(0, 15, -20);
+                controlsRef.current = controls;
+
+                const polarGrid = new THREE.PolarGridHelper(100, 16, 8, 64, 0x8395a7, 0x8395a7);
+                polarGrid.position.y = -0.1;
+                polarGrid.material.opacity = 0.2;
+                polarGrid.material.transparent = true;
+                scene.add(polarGrid);
+
+                const atmGroup = new THREE.Group();
+                const atmMatMesh = new THREE.MeshBasicMaterial({ color: 0x8395a7, transparent: true, opacity: 0.1 });
+                const atmMatWire = new THREE.LineBasicMaterial({ color: 0x8395a7, opacity: 0.5, transparent: true });
+
+                const addAtmPart = (geo, x, y, z) => {
+                    const mesh = new THREE.Mesh(geo, atmMatMesh);
+                    const wire = new THREE.LineSegments(new THREE.EdgesGeometry(geo), atmMatWire);
+                    mesh.position.set(x, y, z);
+                    wire.position.set(x, y, z);
+                    atmGroup.add(mesh);
+                    atmGroup.add(wire);
+                };
+
+                // Kabinet Utama
+                addAtmPart(new THREE.BoxGeometry(16, 32, 14), 0, 16, 0);
+                // Konsol Depan (Keypad / Card Slot Area)
+                addAtmPart(new THREE.BoxGeometry(16, 12, 8), 0, 14, 11);
+                // Tudung Privasi / Pelindung Layar
+                addAtmPart(new THREE.BoxGeometry(16, 10, 6), 0, 25, 10);
+                
+                // Layar Menyala
+                const screenMat = new THREE.MeshBasicMaterial({ color: 0x1dd1a1, transparent: true, opacity: 0.3 });
+                const screen = new THREE.Mesh(new THREE.PlaneGeometry(10, 6), screenMat);
+                screen.position.set(0, 25, 13.1);
+                atmGroup.add(screen);
+
+                atmGroup.position.set(0, 0, -35); // Posisikan di ujung belakang grid
+                scene.add(atmGroup);
+
+                const sensorCore = new THREE.Mesh(new THREE.OctahedronGeometry(3, 0), new THREE.MeshBasicMaterial({ color: 0x1dd1a1, wireframe: true }));
+                sensorCore.position.set(0, 80, -20);
+                scene.add(sensorCore);
+                targetsRef.current.sensor = sensorCore;
+
+                const createHuman = (colorHex, id) => {
+                    const group = new THREE.Group();
+                    const matMesh = new THREE.MeshBasicMaterial({ color: colorHex, transparent: true, opacity: 0.15 });
+                    const matWire = new THREE.LineBasicMaterial({ color: colorHex, transparent: true, opacity: 0.8 });
+
+                    const addPart = (geo, x, y, z, name) => {
+                        const part = new THREE.Group();
+                        const mesh = new THREE.Mesh(geo, matMesh);
+                        const wire = new THREE.LineSegments(new THREE.EdgesGeometry(geo), matWire);
+                        part.add(mesh);
+                        part.add(wire);
+                        part.position.set(x, y, z);
+                        part.name = name;
+                        group.add(part);
+                        return part;
+                    };
+
+                    // Kepala
+                    const head = addPart(new THREE.IcosahedronGeometry(2.5, 1), 0, 28.5, 0, "head");
+                    // Badan
+                    const torso = addPart(new THREE.BoxGeometry(8, 12, 4), 0, 20, 0, "torso");
+                    // Lengan
+                    addPart(new THREE.BoxGeometry(2.5, 12, 2.5), -5.5, 19, 0, "armL");
+                    addPart(new THREE.BoxGeometry(2.5, 12, 2.5), 5.5, 19, 0, "armR");
+                    // Kaki
+                    addPart(new THREE.BoxGeometry(3.5, 13, 3.5), -2.5, 7.5, 0, "legL");
+                    addPart(new THREE.BoxGeometry(3.5, 13, 3.5), 2.5, 7.5, 0, "legR");
+
+                    const scanLines = new THREE.Group();
+                    for(let i=0; i<2; i++) {
+                        scanLines.add(new THREE.Line(
+                            new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), 
+                            new THREE.LineBasicMaterial({ color: colorHex, opacity: 0.3, transparent: true })
+                        ));
+                    }
+                    scene.add(scanLines);
+                    group.userData.scanLines = scanLines;
+                    
+                    group.userData.joints = [
+                        { obj: head },
+                        { obj: torso }
+                    ]; 
+
+                    group.position.set(150, 0, 150);
+                    scene.add(group);
+                    targetsRef.current[id] = group;
+                    return group;
+                };
+
+                createHuman(0x1dd1a1, 'target1');
+                createHuman(0xff6b6b, 'target2');
+                createHuman(0x1dd1a1, 'target3'); // Target 3 untuk simulasi Anak Kecil
+
+                const animate = () => {
+                    frameIdRef.current = requestAnimationFrame(animate);
+                    if (controlsRef.current) controlsRef.current.update();
+                    if (targetsRef.current.sensor) targetsRef.current.sensor.rotation.y += 0.02;
+
+                    // Update Scanlines & HTML Labels
+                    ['target1', 'target2', 'target3'].forEach((id, index) => {
+                        const target = targetsRef.current[id];
+                        const labelRef = index === 0 ? label1Ref : index === 1 ? label2Ref : label3Ref;
+
+                        if (target && target.visible) {
+                            const sensorPos = new THREE.Vector3();
+                            targetsRef.current.sensor.getWorldPosition(sensorPos);
+                            
+                            const head = target.getObjectByName("head");
+                            
+                            target.userData.joints.forEach((joint, i) => {
+                                const jointPos = new THREE.Vector3();
+                                if(joint.obj) joint.obj.getWorldPosition(jointPos);
+                                target.userData.scanLines.children[i].geometry.setFromPoints([sensorPos, jointPos]);
+                            });
+                            target.userData.scanLines.visible = true;
+
+                            // Update Posisi HTML Label mengikuti Kepala (Head)
+                            if (head && labelRef.current && containerRef.current) {
+                                const pos = new THREE.Vector3();
+                                head.getWorldPosition(pos);
+                                
+                                // Simpan posisi Y absolut sebelum memproyeksikan perspektif kamera
+                                const headY = pos.y; 
+
+                                pos.y += 6; // Offset sedikit di atas kepala
+                                pos.project(cameraRef.current);
+
+                                // KAKULASI TINGGI POSTUR BERDASARKAN KOORDINAT Y KEPALA (Base 28.5 = 170cm)
+                                const heightCm = Math.max(Math.round((headY / 28.5) * 170), 0); // Cegah nilai minus
+                                const name = index === 0 ? 'OBJ-ALPHA' : index === 1 ? 'OBJ-BRAVO' : 'OBJ-MINOR';
+                                const icon = index === 0 ? 'fa-user' : index === 1 ? 'fa-user-secret' : 'fa-child-reaching';
+
+                                // Inject HTML dengan tinggi postur
+                                labelRef.current.innerHTML = `
+                                    <div class="flex flex-col">
+                                        <div class="flex items-center gap-1.5"><i class="fa-solid ${icon} text-[9px]"></i> ${name}</div>
+                                        <div class="text-[8px] font-mono mt-0.5 pt-0.5 border-t border-current opacity-80">Pos: ${heightCm} cm</div>
+                                    </div>
+                                `;
+                                
+                                // Sembunyikan jika di belakang kamera
+                                if (pos.z > 1) {
+                                    labelRef.current.style.display = 'none';
+                                } else {
+                                    const cw = containerRef.current.clientWidth;
+                                    const ch = containerRef.current.clientHeight;
+                                    const x = (pos.x * 0.5 + 0.5) * cw;
+                                    const y = (pos.y * -0.5 + 0.5) * ch;
+                                    
+                                    labelRef.current.style.transform = `translate(-50%, -100%) translate(${x}px, ${y}px)`;
+                                    labelRef.current.style.display = 'block';
+                                }
+                            }
+                        } else {
+                            if (target) target.userData.scanLines.visible = false;
+                            if (labelRef.current) labelRef.current.style.display = 'none';
+                        }
+                    });
+                    
+                    renderer.render(scene, camera);
+                };
+                animate();
+
+                const handleResize = () => {
+                    if(containerRef.current && cameraRef.current && rendererRef.current) {
+                        const newWidth = containerRef.current.clientWidth;
+                        const newHeight = containerRef.current.clientHeight;
+                        // Cegah error pembagian nol jika DOM belum siap
+                        if (newWidth === 0 || newHeight === 0) return; 
+                        
+                        cameraRef.current.aspect = newWidth / newHeight;
+                        cameraRef.current.updateProjectionMatrix();
+                        rendererRef.current.setSize(newWidth, newHeight);
+                    }
+                };
+                window.addEventListener('resize', handleResize);
+                
+                // Paksa render ulang (force resize) setelah komponen dimuat penuh di HP
+                setTimeout(handleResize, 100);
+                setTimeout(handleResize, 500);
+
+                return () => {
+                    cancelAnimationFrame(frameIdRef.current);
+                    window.removeEventListener('resize', handleResize);
+                    if(controlsRef.current) controlsRef.current.dispose();
+                    if(rendererRef.current) rendererRef.current.dispose();
+                };
+            }, []);
+
+            useEffect(() => {
+                if (!targetsRef.current.target1) return;
+                const t1 = targetsRef.current.target1, t2 = targetsRef.current.target2;
+                const t3 = targetsRef.current.target3; // Ref anak kecil
+
+                const setTargetStyle = (target, hex) => {
+                    // Update materi bersarang (mesh + wireframe)
+                    target.traverse(child => {
+                        if (child.material) child.material.color.setHex(hex);
+                    });
+                    if (target.userData.scanLines) {
+                        target.userData.scanLines.children.forEach(l => l.material.color.setHex(hex));
+                    }
+                };
+
+                t1.scale.set(1, 1, 1);
+                t1.position.set(30, 0, 40); 
+                t1.visible = true; setTargetStyle(t1, 0x1dd1a1); 
+                
+                t2.scale.set(1, 1, 1);
+                t2.position.set(50, 0, 60); 
+                t2.visible = false; setTargetStyle(t2, 0xff6b6b); 
+
+                // Reset Anak
+                t3.scale.set(0.6, 0.6, 0.6); // Tinggi tubuh 60% dari orang dewasa
+                t3.position.set(20, 0, 45); 
+                t3.visible = false; setTargetStyle(t3, 0x1dd1a1);
+
+                let animFrame;
+                const animateScenario = () => {
+                    animFrame = requestAnimationFrame(animateScenario);
+                    const timeTick = Date.now() * 0.01;
+                    const walk = (target, dest, speed) => {
+                        if(target.position.distanceTo(dest) > 1) {
+                            target.position.lerp(dest, speed);
+                            target.position.y = Math.abs(Math.sin(timeTick * 1.5)) * 1.5; 
+                        } else target.position.y = 0;
+                    };
+
+                    if (scenario === 'NORMAL') {
+                        walk(t1, new THREE.Vector3(0,0,-15), 0.03);
+                    } else if (scenario === 'SHOULDER_SURFING') {
+                        walk(t1, new THREE.Vector3(0,0,-15), 0.03);
+                        t2.visible = true; walk(t2, new THREE.Vector3(2,0,-5), 0.02);
+                        if (t2.position.z < -2) { setTargetStyle(t1, 0xff6b6b); setTargetStyle(t2, 0xff6b6b); }
+                    } else if (scenario === 'SKIMMING') {
+                        walk(t1, new THREE.Vector3(0,0,-20), 0.04);
+                        if (t1.position.z < -15) {
+                            setTargetStyle(t1, 0xff6b6b); 
+                            // Scale down seluruh grup pada sumbu Y untuk simulasi pose berjongkok
+                            if (t1.scale.y > 0.45) { 
+                                t1.scale.y -= 0.015; 
+                            }
+                        }
+                    } else if (scenario === 'CHILD_PARENT') {
+                        // Orang tua jalan, anak mengikuti di samping
+                        walk(t1, new THREE.Vector3(0,0,-15), 0.03);
+                        t3.visible = true; walk(t3, new THREE.Vector3(-6,0,-12), 0.03);
+                    } else if (scenario === 'ELDERLY_SLOW') {
+                        // Berjalan sangat lambat
+                        walk(t1, new THREE.Vector3(0,0,-15), 0.008);
+                    }
+                };
+                animateScenario();
+                return () => cancelAnimationFrame(animFrame);
+            }, [scenario]);
+
+            return (
+                <div className="w-full h-full relative overflow-hidden bg-[#1a1f2b]">
+                    {/* Tambahkan touch-none agar bisa di-swipe di HP tanpa menggulung halaman */}
+                    <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing touch-none" />
+                    
+                    {/* HTML Overlay untuk Label Objek 3D */}
+                    <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                        <div ref={label1Ref} className="absolute top-0 left-0 text-[10px] font-bold text-[#1dd1a1] bg-[#1a1f2b]/80 px-2 py-1 rounded border border-[#1dd1a1]/50 hidden shadow-lg backdrop-blur-sm transition-opacity">
+                            {/* InnerHTML diinjeksi via JavaScript di fungsi animate() */}
+                        </div>
+                        <div ref={label2Ref} className="absolute top-0 left-0 text-[10px] font-bold text-[#ff6b6b] bg-[#1a1f2b]/80 px-2 py-1 rounded border border-[#ff6b6b]/50 hidden shadow-lg backdrop-blur-sm transition-opacity">
+                            {/* InnerHTML diinjeksi via JavaScript di fungsi animate() */}
+                        </div>
+                        <div ref={label3Ref} className="absolute top-0 left-0 text-[10px] font-bold text-[#1dd1a1] bg-[#1a1f2b]/80 px-2 py-1 rounded border border-[#1dd1a1]/50 hidden shadow-lg backdrop-blur-sm transition-opacity">
+                            {/* InnerHTML diinjeksi via JavaScript di fungsi animate() */}
+                        </div>
+                    </div>
+
+                    <div className="absolute top-4 left-4 flex items-center gap-2 bg-[#242b3b]/90 px-3 py-1.5 rounded-lg border border-[rgba(255,255,255,0.05)] shadow-lg backdrop-blur-sm pointer-events-none z-10">
+                        <i className="fa-solid fa-satellite-dish text-[#1dd1a1] animate-pulse"></i>
+                        <span className="text-xs font-semibold text-[#8395a7]">LIVE SPATIAL RADAR</span>
+                    </div>
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-[#1a1f2b]/80 border border-avg-green/20 text-avg-green/80 text-[10px] px-4 py-1.5 rounded-full flex items-center gap-3 pointer-events-none z-10">
+                        <span className="flex items-center gap-1.5"><i className="fa-solid fa-mouse"></i> Scroll = Zoom</span>
+                        <span className="w-1 h-1 rounded-full bg-avg-green/50"></span>
+                        <span>Klik & Geser = Putar</span>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- COMPONENT: Toggle Switch ---
+        const ToggleSwitch = ({ label, defaultChecked, onChange }) => (
+            <div className="flex items-center justify-between py-2 border-b border-[rgba(255,255,255,0.02)] last:border-0">
+                <span className="text-xs font-medium text-avg-muted">{label}</span>
+                <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" defaultChecked={defaultChecked} onChange={onChange} className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-avg-panel appearance-none cursor-pointer transition-transform duration-200 ease-in-out z-10" />
+                    <label className="toggle-label block overflow-hidden h-5 rounded-full bg-slate-700 cursor-pointer transition-colors duration-200 ease-in-out"></label>
+                </div>
+            </div>
+        );
+
+        // --- MAIN APP ---
+        function EchoFiApp() {
+            const [scenario, setScenario] = useState('IDLE');
+            const [threatStatus, setThreatStatus] = useState('SAFE'); // SAFE, CRITICAL
+            
+            // Hard-Tech States
+            const [visitors, setVisitors] = useState({ daily: 142, weekly: 856, monthly: 3420 });
+            const [chartData, setChartData] = useState([30, 45, 60, 40, 75, 55, 90]);
+            const [signalData, setSignalData] = useState(Array(50).fill({ time: 0, amp: 40 }));
+            const [logs, setLogs] = useState([]);
+            const [telemetry, setTelemetry] = useState({ temp: 42.5, ping: 14, uptime: '14d 08h 22m' });
+            
+            const logsEndRef = useRef(null);
+
+            // Log Helper
+            const addLog = useCallback((msg, type = "info") => {
+                const time = new Date().toLocaleTimeString('id-ID', { hour12: false });
+                setLogs(prev => [...prev, { time, msg, type }].slice(-40)); // Keep last 40
+            }, []);
+
+            // Initial Boot Log
+            useEffect(() => {
+                addLog("System Initialized. Wi-Fi CSI Scanner Online.", "info");
+                addLog("Connected to Endpoint: ATM-0492", "info");
+            }, [addLog]);
+
+            // Auto-scroll logs
+            useEffect(() => {
+                if (logsEndRef.current) {
+                    logsEndRef.current.scrollIntoView({ behavior: "smooth" });
+                }
+            }, [logs]);
+
+            // Real-time Simulation Engine
+            useEffect(() => {
+                let tick = 0;
+                
+                const interval = setInterval(() => {
+                    tick++;
+                    let isThreat = threatStatus === 'CRITICAL';
+                    
+                    // 1. Telemetry Fluctuation
+                    setTelemetry(prev => ({
+                        ...prev,
+                        temp: isThreat ? Math.min(65.0, prev.temp + 0.5) : Math.max(42.0, prev.temp - 0.2 + (Math.random() * 0.4 - 0.2)),
+                        ping: isThreat ? Math.floor(Math.random() * 20 + 30) : Math.floor(Math.random() * 5 + 12)
+                    }));
+
+                    // 2. Waveform Fluctuation
+                    let baseAmp = 60;
+                    let noise = Math.random() * 8 - 4;
+                    
+                    if (scenario === 'NORMAL') {
+                        baseAmp = 60 + Math.sin(tick * 0.2) * 15;
+                    } else if (scenario === 'SHOULDER_SURFING') {
+                        baseAmp = 85 + Math.random() * 15;
+                    } else if (scenario === 'SKIMMING') {
+                        baseAmp = 25 + Math.sin(tick * 0.1) * 5; // Anjlok saat ada orang jongkok menutupi sinyal
+                    }
+
+                    // Jika IDLE, gelombang tenang
+                    if (scenario === 'IDLE') baseAmp = 40 + Math.sin(tick * 0.1) * 5;
+
+                    setSignalData(prev => {
+                        const newArr = [...prev.slice(1), { time: tick, amp: Math.max(0, Math.min(100, baseAmp + noise)) }];
+                        return newArr;
+                    });
+
+                }, 100);
+
+                return () => clearInterval(interval);
+            }, [scenario, threatStatus]);
+
+            // Scenario Trigger Logic
+            useEffect(() => {
+                if (scenario === 'IDLE') {
+                    setThreatStatus('SAFE'); return;
+                }
+
+                let timer, timer2;
+                if (scenario === 'NORMAL') {
+                    setThreatStatus('SAFE');
+                    addLog("[AI_CORE] Terdeteksi 1 objek. Postur stabil.", "info");
+                    timer = setTimeout(() => {
+                        setVisitors(v => ({ ...v, daily: v.daily + 1, weekly: v.weekly + 1, monthly: v.monthly + 1 }));
+                        setChartData(prev => [...prev.slice(1), Math.floor(Math.random() * 60) + 40]);
+                        addLog("[AI_CORE] Transaksi selesai. Objek keluar bilik.", "info");
+                    }, 3000);
+                } 
+                else if (scenario === 'SHOULDER_SURFING') {
+                    addLog("[AI_CORE] Peringatan: Mendeteksi 2 massa tubuh berhimpitan.", "warn");
+                    timer = setTimeout(() => { 
+                        setThreatStatus('CRITICAL'); 
+                        addLog("[SECURITY] THREAT DETECTED: Shoulder Surfing terkonfirmasi!", "crit");
+                        addLog("[SYSTEM] API TRIGGER: Transaksi Dibekukan (Safe Mode).", "crit");
+                    }, 2000);
+                }
+                else if (scenario === 'SKIMMING') {
+                    addLog("[AI_CORE] Peringatan: Perubahan elevasi drastis pada vektor Y.", "warn");
+                    timer = setTimeout(() => { 
+                        setThreatStatus('CRITICAL'); 
+                        addLog("[SECURITY] THREAT DETECTED: Aktivitas mekanik mencurigakan di Card Slot (Skimming)!", "crit");
+                        addLog("[SYSTEM] API TRIGGER: Slot Kartu Dikunci. Alarm area diaktifkan.", "crit");
+                    }, 2000);
+                }
+                else if (scenario === 'CHILD_PARENT') {
+                    setThreatStatus('SAFE');
+                    addLog("[AI_CORE] Terdeteksi 2 objek. Klasifikasi: Dewasa & Anak.", "info");
+                    timer = setTimeout(() => {
+                        addLog("[AI_FILTER] Jarak rapat diabaikan (Profil Keluarga/Anak).", "info");
+                    }, 1500);
+                    timer2 = setTimeout(() => {
+                        setVisitors(v => ({ ...v, daily: v.daily + 2, weekly: v.weekly + 2, monthly: v.monthly + 2 }));
+                        setChartData(prev => [...prev.slice(1), Math.floor(Math.random() * 60) + 40]);
+                        addLog("[AI_CORE] Transaksi aman selesai.", "info");
+                    }, 4000);
+                }
+                else if (scenario === 'ELDERLY_SLOW') {
+                    setThreatStatus('SAFE');
+                    addLog("[AI_CORE] Terdeteksi 1 objek. Kecepatan gerak sangat rendah.", "info");
+                    timer = setTimeout(() => {
+                        addLog("[AI_FILTER] Waktu diam melebihi normal. Pola gerak stabil = Lansia.", "warn");
+                        addLog("[AI_FILTER] Tidak ada indikasi Skimming. Alarm dibatalkan.", "info");
+                    }, 3000);
+                    timer2 = setTimeout(() => {
+                        setVisitors(v => ({ ...v, daily: v.daily + 1, weekly: v.weekly + 1, monthly: v.monthly + 1 }));
+                        setChartData(prev => [...prev.slice(1), Math.floor(Math.random() * 60) + 40]);
+                        addLog("[AI_CORE] Transaksi lambat selesai dengan aman.", "info");
+                    }, 7000);
+                }
+
+                return () => {
+                    clearTimeout(timer);
+                    if(timer2) clearTimeout(timer2);
+                }
+            }, [scenario, addLog]);
+
+            const runScenario = (type) => {
+                setScenario('IDLE');
+                setTimeout(() => setScenario(type), 300);
+            };
+
+            const isSafe = threatStatus === 'SAFE';
+
+            return (
+                <div className="min-h-screen bg-avg-bg flex flex-col font-sans">
+                    
+                    {/* Top Bar (AVG Style Header) */}
+                    <header className="h-16 px-6 flex items-center justify-between border-b border-[rgba(255,255,255,0.05)] bg-avg-bg z-20 sticky top-0 shadow-md">
+                        <div className="flex items-center gap-2">
+                            <div className={`w-3 h-3 rounded-full ${isSafe ? 'bg-avg-green' : 'bg-avg-red animate-pulse shadow-[0_0_10px_#ff6b6b]'}`}></div>
+                            <span className="font-bold text-lg text-white">EchoFi Security</span>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            {!isSafe && (
+                                <div className="hidden sm:flex items-center gap-2 bg-avg-red/20 text-avg-red px-3 py-1 rounded border border-avg-red/50 animate-pulse text-xs font-bold tracking-widest">
+                                    <i className="fa-solid fa-lock"></i> ATM LOCKED
+                                </div>
+                            )}
+                            <div className="text-sm font-medium text-avg-muted flex items-center gap-2 cursor-pointer hover:text-white transition">
+                                My ATM-0492 <i className="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Main Content Area */}
+                    <main className="flex-1 flex flex-col max-w-7xl w-full mx-auto p-4 md:p-6 gap-6">
+                        
+                        {/* HERO SECTION: 3D Radar (Utama) & Main Status */}
+                        <div className="flex flex-col lg:flex-row gap-6">
+                            
+                            {/* Kiri: 3D Live Radar (Fokus Utama) */}
+                            <div className="flex-1 lg:w-2/3 h-[450px] lg:h-[500px] avg-card overflow-hidden border-2 border-transparent transition-colors duration-500 relative shadow-2xl" 
+                                 style={{ borderColor: isSafe ? 'transparent' : 'rgba(255, 107, 107, 0.5)' }}>
+                                <RadarScene3D scenario={scenario} />
+                                
+                                {/* Overlay peringatan jika kritis */}
+                                {!isSafe && (
+                                    <div className="absolute inset-0 border-4 border-avg-red pointer-events-none animate-pulse z-10"></div>
+                                )}
+                            </div>
+
+                            {/* Kanan: Status Sentral & Tombol Kontrol */}
+                            <div className="w-full lg:w-1/3 flex flex-col gap-6">
+                                {/* The Big Checkmark Status */}
+                                <div className="avg-card p-6 flex flex-col items-center justify-center text-center flex-1 relative overflow-hidden">
+                                    <div className="absolute top-0 w-full h-1" style={{ backgroundColor: isSafe ? '#1dd1a1' : '#ff6b6b' }}></div>
+
+                                    <div className={`w-20 h-20 rounded-full border-2 flex items-center justify-center mb-4 transition-all duration-500 ${isSafe ? 'border-avg-green status-circle-green' : 'border-avg-red status-circle-red bg-avg-redDim'}`}>
+                                        {isSafe ? <i className="fa-solid fa-check text-3xl text-avg-green"></i> : <i className="fa-solid fa-xmark text-3xl text-avg-red"></i>}
+                                    </div>
+                                    <h1 className={`text-xl font-semibold transition-colors duration-500 ${isSafe ? 'text-avg-green' : 'text-avg-red'}`}>
+                                        {isSafe ? 'Ruang ATM Aman' : 'Anomali Terdeteksi!'}
+                                    </h1>
+                                    <p className="text-avg-muted mt-2 text-xs leading-relaxed">
+                                        {isSafe ? 'Sensor spasial Wi-Fi aktif dan memantau secara real-time.' : 'Aktivitas mencurigakan terdeteksi. Protokol darurat diaktifkan.'}
+                                    </p>
+                                </div>
+
+                                {/* Control Actions (Uji Skenario) */}
+                                <div className="avg-card flex flex-col items-center justify-center p-4 gap-2 shrink-0">
+                                    <h3 className="text-[10px] font-semibold text-avg-muted uppercase tracking-widest w-full text-left mb-1">Uji Skenario AI (Ancaman):</h3>
+                                    
+                                    <button onClick={() => runScenario('NORMAL')} className="w-full py-2 bg-avg-bg hover:bg-[#1f2533] border border-[rgba(255,255,255,0.05)] text-[11px] rounded-lg transition-colors flex items-center justify-start px-3 gap-3">
+                                        <i className="fa-solid fa-user-check text-avg-green w-4"></i> Transaksi Normal
+                                    </button>
+                                    
+                                    <button onClick={() => runScenario('SHOULDER_SURFING')} className="w-full py-2 bg-avg-bg hover:bg-[#1f2533] border border-[rgba(255,255,255,0.05)] text-[11px] rounded-lg transition-colors flex items-center justify-start px-3 gap-3 group">
+                                        <i className="fa-solid fa-users-viewfinder text-avg-yellow w-4 group-hover:animate-pulse"></i> Shoulder Surfing
+                                    </button>
+
+                                    <button onClick={() => runScenario('SKIMMING')} className="w-full py-2 bg-avg-bg hover:bg-[#1f2533] border border-[rgba(255,255,255,0.05)] text-[11px] rounded-lg transition-colors flex items-center justify-start px-3 gap-3 group">
+                                        <i className="fa-solid fa-mask text-avg-red w-4 group-hover:animate-pulse"></i> Pasang Skimmer
+                                    </button>
+
+                                    <h3 className="text-[10px] font-semibold text-avg-muted uppercase tracking-widest w-full text-left mb-1 mt-1">Filter False-Alarm:</h3>
+                                    
+                                    <button onClick={() => runScenario('CHILD_PARENT')} className="w-full py-2 bg-avg-bg hover:bg-[#1f2533] border border-[rgba(255,255,255,0.05)] text-[11px] rounded-lg transition-colors flex items-center justify-start px-3 gap-3 group">
+                                        <i className="fa-solid fa-child-reaching text-[#00f2fe] w-4 group-hover:animate-bounce"></i> Bersama Anak
+                                    </button>
+
+                                    <button onClick={() => runScenario('ELDERLY_SLOW')} className="w-full py-2 bg-avg-bg hover:bg-[#1f2533] border border-[rgba(255,255,255,0.05)] text-[11px] rounded-lg transition-colors flex items-center justify-start px-3 gap-3 group">
+                                        <i className="fa-solid fa-person-cane text-[#00f2fe] w-4 group-hover:animate-pulse"></i> Lansia (Lambat)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* HARD-TECH CARDS SECTION (Bottom Grid) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            
+                            {/* Col 1: Visitor Traffic & Toggles (Stacked) */}
+                            <div className="flex flex-col gap-6">
+                                {/* Traffic Chart Mini */}
+                                <div className="avg-card p-4 flex flex-col border-t-2 border-t-avg-green flex-1">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h3 className="text-xs font-semibold text-white flex items-center gap-2"><i className="fa-solid fa-users"></i> Trafik</h3>
+                                        <div className="flex items-center gap-1.5 bg-avg-greenDim px-1.5 py-0.5 rounded">
+                                            <div className="w-1.5 h-1.5 bg-avg-green rounded-full animate-pulse"></div>
+                                            <span className="text-[8px] font-bold text-avg-green uppercase">Live</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex items-end gap-1 h-10 mb-3">
+                                        {chartData.map((h, i) => (
+                                            <div key={i} className="flex-1 bg-avg-muted/20 rounded-t-sm relative h-full overflow-hidden">
+                                                <div className="absolute bottom-0 w-full bg-avg-green rounded-t-sm transition-all duration-1000" style={{ height: `${h}%` }}></div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="flex justify-between items-center text-xs text-avg-muted bg-avg-bg px-2 py-1 rounded">
+                                        <span>Hari ini:</span>
+                                        <span className="font-bold text-avg-green">{visitors.daily} org</span>
+                                    </div>
+                                </div>
+
+                                {/* Auto-Mitigation Toggles */}
+                                <div className="avg-card p-4 flex flex-col flex-1">
+                                    <h3 className="text-[10px] font-semibold text-avg-muted uppercase tracking-widest mb-3">Sistem Otomasi Mitigasi</h3>
+                                    <div className="space-y-1">
+                                        <ToggleSwitch label="Auto-Lock Mesin ATM" defaultChecked={true} onChange={() => addLog("[USER] Auto-Lock rule updated.", "info")} />
+                                        <ToggleSwitch label="Trigger Sirene Cabang" defaultChecked={false} onChange={(e) => addLog(`[USER] Sirene diubah menjadi ${e.target.checked ? 'AKTIF' : 'MATI'}.`, "warn")} />
+                                        <ToggleSwitch label="Sync CCTV Snapshot" defaultChecked={true} onChange={() => {}} />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Col 2 & 3: CSI Waveform Graph (Span 2) */}
+                            <div className="lg:col-span-2 avg-card p-4 flex flex-col border-t-2 border-t-[#00f2fe]">
+                                <div className="flex justify-between items-center mb-2">
+                                    <h3 className="text-xs font-semibold text-white flex items-center gap-2">
+                                        <i className="fa-solid fa-wave-square text-[#00f2fe]"></i> CSI Signal Waveform
+                                    </h3>
+                                    <span className="text-[9px] font-mono text-[#00f2fe] bg-[#00f2fe]/10 px-1.5 py-0.5 rounded border border-[#00f2fe]/30">FREQ: 5.8GHz</span>
+                                </div>
+                                <p className="text-[9px] text-avg-muted mb-3">Visualisasi real-time fluktuasi amplitudo subcarrier Wi-Fi. Penurunan drastis mengindikasikan gangguan fisik persisten.</p>
+                                
+                                <div className="flex-1 relative bg-[#020617] rounded border border-slate-800 overflow-hidden min-h-[120px]">
+                                    <AdvancedSignalChart data={signalData} isThreat={!isSafe} />
+                                    {!isSafe && (
+                                        <div className="absolute top-2 right-2 bg-red-900/80 text-red-500 text-[8px] font-bold px-1.5 py-0.5 rounded border border-red-500 animate-pulse">
+                                            INTERFERENSI EKSTREM
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Col 4: Terminal Logs & IoT Telemetry (Stacked) */}
+                            <div className="flex flex-col gap-6">
+                                {/* IoT Telemetry */}
+                                <div className="avg-card p-4 border-t-2 border-t-avg-yellow shrink-0">
+                                    <h3 className="text-[10px] font-semibold text-avg-muted uppercase tracking-widest mb-3 flex items-center gap-2">
+                                        <i className="fa-solid fa-microchip"></i> Telemetri Hardware
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div className="bg-avg-bg p-2 rounded border border-[rgba(255,255,255,0.02)]">
+                                            <div className="text-[9px] text-avg-muted">SUHU CPU</div>
+                                            <div className={`text-sm font-bold font-mono ${telemetry.temp > 60 ? 'text-avg-red' : 'text-avg-yellow'}`}>{telemetry.temp.toFixed(1)}°C</div>
+                                        </div>
+                                        <div className="bg-avg-bg p-2 rounded border border-[rgba(255,255,255,0.02)]">
+                                            <div className="text-[9px] text-avg-muted">LATENSI</div>
+                                            <div className="text-sm font-bold font-mono text-[#00f2fe]">{telemetry.ping}ms</div>
+                                        </div>
+                                        <div className="col-span-2 bg-avg-bg p-2 rounded border border-[rgba(255,255,255,0.02)] flex justify-between items-center">
+                                            <div className="text-[9px] text-avg-muted">UPTIME</div>
+                                            <div className="text-xs font-mono text-white">{telemetry.uptime}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Terminal Logs */}
+                                <div className="avg-card p-4 flex flex-col flex-1">
+                                    <h3 className="text-[10px] font-semibold text-avg-muted uppercase tracking-widest mb-2 flex items-center gap-2">
+                                        <i className="fa-solid fa-terminal"></i> Incident Logs
+                                    </h3>
+                                    {/* Batasan tinggi dan overflow untuk mencegah kotak memanjang */}
+                                    <div className="bg-[#050a15] rounded border border-slate-800 p-2 overflow-y-auto font-mono text-[9px] space-y-1.5 relative h-[140px] scroll-smooth">
+                                        {logs.map((log, i) => (
+                                            <div key={i} className={`flex gap-1.5 leading-tight ${log.type === 'crit' ? 'text-avg-red' : log.type === 'warn' ? 'text-avg-yellow' : 'text-avg-muted'}`}>
+                                                <span className="opacity-50 shrink-0">[{log.time}]</span>
+                                                <span className={log.type === 'crit' ? 'font-bold' : ''}>{log.msg}</span>
+                                            </div>
+                                        ))}
+                                        <div ref={logsEndRef} />
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </main>
+                    
+                    {/* Footer Info */}
+                    <footer className="py-4 px-6 flex justify-between items-center text-xs text-avg-muted border-t border-[rgba(255,255,255,0.05)] bg-[#151922]">
+                        <div>Pusat Komando: <span className="text-avg-green">Sistem Aktif & Terhubung</span></div>
+                        <div className="flex items-center gap-2">
+                            EchoFi Core Engine v2.4 <i className="fa-solid fa-shield-halved text-avg-muted"></i>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<EchoFiApp />);
+    </script>
+</body>
+</html>
+
+
+
+

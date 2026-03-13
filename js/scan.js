@@ -209,6 +209,7 @@ class ScanController {
     // Init spatial radar
     if (this.spatialRadar) { this.spatialRadar.destroy(); this.spatialRadar = null; }
     this.spatialRadar = new SpatialRadar("spatial-radar-wrap");
+    this.spatialRadar.setScenario(this._getScenarioForATM(atm));
 
     // Start tech metrics
     this.startTechMetrics(atm.isCompromised);
@@ -556,6 +557,13 @@ class ScanController {
     if (!el) return;
     const hidden = el.classList.toggle("hidden");
     if (btn) btn.textContent = hidden ? "{ } Tampilkan Raw Data" : "{ } Sembunyikan Raw Data";
+  }
+
+  /** Mapping threat type ATM → scenario 3D radar */
+  _getScenarioForATM(atm) {
+    if (!atm.isCompromised) return 'NORMAL';
+    if (atm.threatType === 'deep_insert_skimmer' || atm.threatType === 'overlay_skimmer') return 'SKIMMING';
+    return 'SHOULDER_SURFING'; // hidden_camera, fake_keypad, multi_threat
   }
 
   reportATM() {

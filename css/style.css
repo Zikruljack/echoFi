@@ -216,10 +216,6 @@ body {
 .step-icon { font-size: 2rem; margin-bottom: 0.75rem; }
 .step-title { font-weight: 700; margin-bottom: 0.5rem; }
 .step-desc { font-size: 13px; color: var(--text-muted); }
-.step-connector {
-  position: absolute; top: 35px; left: calc(100% - 0px); width: 1.5rem;
-  height: 2px; background: var(--border); display: none;
-}
 
 /* ── INDEX: STATS ── */
 .stats-bar {
@@ -773,6 +769,10 @@ body {
 .footer-copy { font-size: 11px; color: var(--text-dim); }
 
 /* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  .why-grid { grid-template-columns: 1fr !important; }
+}
+
 @media (max-width: 768px) {
   .nav-menu { display: none; position: absolute; top: var(--nav-h); left: 0; right: 0; background: var(--bg); border-bottom: 1px solid var(--border); flex-direction: column; padding: 1rem; gap: 4px; z-index: 999; }
   .nav-menu.open { display: flex; }
