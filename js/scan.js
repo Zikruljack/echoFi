@@ -9,6 +9,7 @@ class ScanController {
     this.scanTimeout = null;
     this.scanResultChart = null;
     this.anomalyScore = 0;
+    this.spatialRadar = null;
 
     this.cityFilter = "all";
     this.bankFilter = "all";
@@ -205,6 +206,10 @@ class ScanController {
     this.waveform = new WaveformCanvas("waveform-canvas");
     this.waveform.start("normal");
 
+    // Init spatial radar
+    if (this.spatialRadar) { this.spatialRadar.destroy(); this.spatialRadar = null; }
+    this.spatialRadar = new SpatialRadar("spatial-radar-wrap");
+
     // Start tech metrics
     this.startTechMetrics(atm.isCompromised);
 
@@ -288,8 +293,9 @@ class ScanController {
         if (step.dot >= 0) setDot(step.dot);
 
         // Switch waveform to anomaly at 4s if compromised
-        if (step.time === 4000 && atm.isCompromised && this.waveform) {
-          this.waveform.setMode("anomaly");
+        if (step.time === 4000 && atm.isCompromised) {
+          if (this.waveform) this.waveform.setMode("anomaly");
+          if (this.spatialRadar) this.spatialRadar.setThreatMode(true);
         }
       }, step.time);
     });
@@ -559,6 +565,7 @@ class ScanController {
   resetScan() {
     this.state = "select";
     if (this.waveform) { this.waveform.stop(); this.waveform = null; }
+    if (this.spatialRadar) { this.spatialRadar.destroy(); this.spatialRadar = null; }
     this.stopTechMetrics();
     if (this.scanTimeout) { clearTimeout(this.scanTimeout); this.scanTimeout = null; }
     this.selectedATM = null;
