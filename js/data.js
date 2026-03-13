@@ -1,4 +1,4 @@
-// echoFi — Dummy Data
+// EchoFi — Dummy Data
 // Semua data hardcoded, tidak ada backend
 
 const ATM_DATA = [

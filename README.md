@@ -1,8 +1,8 @@
-# echoFi
+# EchoFi
 
 **Deteksi Fraud ATM Sebelum Terjadi — Powered by Wi-Fi CSI**
 
-echoFi adalah alat deteksi fraud portable untuk nasabah bank. Bawa device kecil berbasis ESP32, tempelkan ke mesin ATM sebelum transaksi, dan dalam 7 detik device akan memindai menggunakan gelombang Wi-Fi CSI untuk mendeteksi skimmer, kamera tersembunyi, atau keypad palsu.
+EchoFi adalah alat deteksi fraud portable untuk nasabah bank. Bawa device kecil berbasis ESP32, tempelkan ke mesin ATM sebelum transaksi, dan dalam 7 detik device akan memindai menggunakan gelombang Wi-Fi CSI untuk mendeteksi skimmer, kamera tersembunyi, atau keypad palsu.
 
 > Seperti metal detector, tapi untuk fraud device — menggunakan gelombang Wi-Fi, bukan medan magnet.
 
@@ -35,7 +35,7 @@ Edge AI (CNN-LSTM) deteksi anomali
 Hasil: AMAN ✅ atau ANCAMAN 🔴
 ```
 
-Objek asing seperti skimmer atau overlay keypad mengubah pola pantulan gelombang Wi-Fi secara terukur. echoFi mendeteksi perubahan ini tanpa memerlukan kamera atau koneksi internet.
+Objek asing seperti skimmer atau overlay keypad mengubah pola pantulan gelombang Wi-Fi secara terukur. EchoFi mendeteksi perubahan ini tanpa memerlukan kamera atau koneksi internet.
 
 ---
 
@@ -89,7 +89,7 @@ echofi/
 
 ## Keunggulan vs Solusi Existing
 
-| Fitur | echoFi | CCTV | Anti-Skimming Konvensional |
+| Fitur | EchoFi | CCTV | Anti-Skimming Konvensional |
 |-------|--------|------|---------------------------|
 | Deteksi sebelum transaksi | ✓ | ✗ | ~ |
 | Deteksi deep insert skimmer | ✓ | ✗ | ✗ |

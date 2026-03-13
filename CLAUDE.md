@@ -1,8 +1,8 @@
-# CLAUDE.md — echoFi Prototype
+# CLAUDE.md — EchoFi Prototype
 
 ## TENTANG PROJECT
 
-echoFi adalah **alat deteksi fraud portable untuk nasabah bank**. User punya device kecil (ESP32), tempelkan ke mesin ATM sebelum transaksi, device scan pakai Wi-Fi CSI untuk deteksi apakah ada skimmer/kamera tersembunyi/keypad palsu terpasang.
+EchoFi adalah **alat deteksi fraud portable untuk nasabah bank**. User punya device kecil (ESP32), tempelkan ke mesin ATM sebelum transaksi, device scan pakai Wi-Fi CSI untuk deteksi apakah ada skimmer/kamera tersembunyi/keypad palsu terpasang.
 
 **Ini prototype web untuk demo hackathon.** Tidak ada backend, tidak ada database, tidak ada framework. Pure HTML + CSS + JS yang bisa langsung buka di browser. Semua data dummy hardcoded di JS.
 
@@ -226,7 +226,7 @@ Simpel, langsung ke poin.
 
 **Konten:**
 
-- Navbar: logo echoFi, link ke Scan / Peta / Riwayat / Cara Kerja
+- Navbar: logo EchoFi, link ke Scan / Peta / Riwayat / Cara Kerja
 - Hero: tagline "Scan ATM Anda. Deteksi Fraud Sebelum Terjadi."
 - Tombol besar: "MULAI SCAN" → ke scan.html
 - 3 langkah: Dekatkan Device → Scan → Hasil Instan (dengan ikon sederhana)
@@ -342,7 +342,7 @@ Halaman informatif untuk juri. Scrollable single page.
 3. **Cara Kerja Wi-Fi CSI:** Diagram sederhana — gelombang dipancarkan → memantul → benda asing mengubah pola pantulan → AI deteksi anomali
 4. **Jenis Ancaman:** 5 jenis (skimmer, overlay, kamera, keypad, multi) dengan ikon dan penjelasan
 5. **Arsitektur:** Diagram flow: Device → Scan → Edge AI → Hasil → Cloud (opsional)
-6. **Keunggulan vs Existing:** Tabel perbandingan echoFi vs CCTV vs Anti-Skimming Device
+6. **Keunggulan vs Existing:** Tabel perbandingan EchoFi vs CCTV vs Anti-Skimming Device
 7. **Roadmap:** Timeline → Prototype Web → Hardware MVP → Pilot → Produksi Massal
 8. **Spesifikasi:** ESP32, CNN-LSTM, Privacy compliant (tanpa kamera)
 

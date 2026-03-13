@@ -1,4 +1,4 @@
-// echoFi — Waveform Canvas Animation
+// EchoFi — Waveform Canvas Animation
 
 class WaveformCanvas {
   constructor(canvasId) {

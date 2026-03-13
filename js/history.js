@@ -1,4 +1,4 @@
-// echoFi — History Controller
+// EchoFi — History Controller
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!document.getElementById("history-list")) return;

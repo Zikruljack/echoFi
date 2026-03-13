@@ -1,4 +1,4 @@
-// echoFi — Spatial Radar (Three.js)
+// EchoFi — Spatial Radar (Three.js)
 
 class SpatialRadar {
   constructor(containerId) {

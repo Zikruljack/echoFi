@@ -1,4 +1,4 @@
-// echoFi — Map Controller
+// EchoFi — Map Controller
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!document.getElementById("map")) return;
